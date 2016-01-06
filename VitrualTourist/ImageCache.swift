@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  FavoriteActors
+//  ImageCache.swift
+//  Pulled from the FavoriteActors app
 //
 //  Created by Jason on 1/31/15.
 //  Copyright (c) 2015 Udacity. All rights reserved.
@@ -58,6 +58,11 @@ class ImageCache {
         // And in documents directory
         let data = UIImagePNGRepresentation(image!)!
         data.writeToFile(path, atomically: true)
+    }
+    
+    func deleteImage(identifier: String) {
+        // call store with nil for the image deletes the image
+        storeImage(nil, withIdentifier: identifier)
     }
     
     // MARK: - Helper

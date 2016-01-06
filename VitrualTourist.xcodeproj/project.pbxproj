@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		78E5F65C1C38730500B2CF5B /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E5F65B1C38730500B2CF5B /* PhotoAlbumViewController.swift */; };
+		78E5F6601C3AD1E500B2CF5B /* PhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E5F65F1C3AD1E500B2CF5B /* PhotoCell.swift */; };
 		78FD64321C3826B7005A09BB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78FD64311C3826B7005A09BB /* AppDelegate.swift */; };
 		78FD64341C3826B7005A09BB /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78FD64331C3826B7005A09BB /* MapViewController.swift */; };
 		78FD64371C3826B7005A09BB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78FD64351C3826B7005A09BB /* Main.storyboard */; };
@@ -23,6 +24,7 @@
 
 /* Begin PBXFileReference section */
 		78E5F65B1C38730500B2CF5B /* PhotoAlbumViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewController.swift; sourceTree = "<group>"; };
+		78E5F65F1C3AD1E500B2CF5B /* PhotoCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoCell.swift; sourceTree = "<group>"; };
 		78FD642E1C3826B7005A09BB /* VitrualTourist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VitrualTourist.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		78FD64311C3826B7005A09BB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		78FD64331C3826B7005A09BB /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
@@ -74,6 +76,7 @@
 				78FD64381C3826B7005A09BB /* Model.xcdatamodeld */,
 				78FD64331C3826B7005A09BB /* MapViewController.swift */,
 				78E5F65B1C38730500B2CF5B /* PhotoAlbumViewController.swift */,
+				78E5F65F1C3AD1E500B2CF5B /* PhotoCell.swift */,
 				78FD64351C3826B7005A09BB /* Main.storyboard */,
 				78FD643B1C3826B7005A09BB /* Assets.xcassets */,
 				78FD643D1C3826B7005A09BB /* LaunchScreen.storyboard */,
@@ -171,6 +174,7 @@
 				78FD643A1C3826B7005A09BB /* Model.xcdatamodeld in Sources */,
 				78FD64521C385675005A09BB /* ImageCache.swift in Sources */,
 				78FD64471C3826E6005A09BB /* CoreDataStackManager.swift in Sources */,
+				78E5F6601C3AD1E500B2CF5B /* PhotoCell.swift in Sources */,
 				78FD64341C3826B7005A09BB /* MapViewController.swift in Sources */,
 				78FD64321C3826B7005A09BB /* AppDelegate.swift in Sources */,
 				78FD64501C385636005A09BB /* FlickrClient.swift in Sources */,

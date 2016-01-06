@@ -112,7 +112,6 @@ class MapViewController: UIViewController {
                 // Place details
                 var placeMark: CLPlacemark!
                 placeMark = placemarks?[0]
-                print(placeMark.addressDictionary!)
                 if let city = placeMark.addressDictionary!["City"] as? NSString {
                     if let country = placeMark.addressDictionary!["Country"] as? NSString {
                         title = "\(city), \(country)"
@@ -125,7 +124,12 @@ class MapViewController: UIViewController {
                 let dictionary: [String : AnyObject] = ["title": title!, "latitude": coordinates.latitude, "longitude": coordinates.longitude]
                 let pin = Pin(dictionary: dictionary, context: self.sharedContext)
                 CoreDataStackManager.sharedInstance().saveContext()
-                //            pin.loadPhotos() { success in }
+                
+                FlickrClient.sharedInstance().fetchImageListFromFlickr(pin, context: self.sharedContext) { photos, error in
+                    for photo in (photos as? [Photo])! {
+                        FlickrClient.sharedInstance().downloadImagesFromFlickr(photo, addInBackground: true) { success, error in }
+                    }
+                }
             })
         case .Changed:
             mapView.removeAnnotation(temporaryPin!)
@@ -174,7 +178,7 @@ extension MapViewController : MKMapViewDelegate {
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         if control == view.rightCalloutAccessoryView {
             let controller = storyboard!.instantiateViewControllerWithIdentifier("PhotoAlbumViewController") as! PhotoAlbumViewController
-            controller.pin = view.annotation
+            controller.pin = view.annotation as? Pin
             self.navigationController!.pushViewController(controller, animated: true)
         }
     }
