@@ -125,9 +125,20 @@ class MapViewController: UIViewController {
                 let pin = Pin(dictionary: dictionary, context: self.sharedContext)
                 CoreDataStackManager.sharedInstance().saveContext()
                 
-                FlickrClient.sharedInstance.fetchImageListFromFlickr(pin, context: self.sharedContext) { photos, error in
-                    for photo in (photos as? [Photo])! {
-                        FlickrClient.sharedInstance.downloadImagesFromFlickr(photo, addInBackground: true) { success, error in }
+                FlickrClient.sharedInstance.fetchImageListFromFlickr(pin.coordinate.latitude, longitude: pin.coordinate.longitude) { JSONResult, error in
+                    dispatch_async(dispatch_get_main_queue()) {
+                        var photos: [Photo]?
+                        if let results = JSONResult.objectForKey("photos")!["photo"] as? [[String : AnyObject]] {
+                            photos = Photo.photosFromResults(results, pin: pin, context: self.sharedContext)
+                        }
+                        for photo in photos! {
+                            FlickrClient.sharedInstance.downloadImagesFromFlickr(photo.imagePath!) { data, error in
+                                dispatch_async(dispatch_get_main_queue()) {
+                                    photo.image = UIImage(data: data)
+                                }
+                            }
+                        }
+                        CoreDataStackManager.sharedInstance().saveContext()
                     }
                 }
             })

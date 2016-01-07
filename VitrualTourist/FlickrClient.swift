@@ -16,7 +16,7 @@ class FlickrClient: NSObject {
     static let sharedInstance = FlickrClient()
     
     struct Constants {
-        static let ApiKey = "REPLACE_THIS_WITH_YOUR_API_KEY"
+        static let ApiKey = "1a8f9e925ac8ead0a86355c9b789b797"
         static let BaseUrl = "http://api.flickr.com/services/rest/"
         static let BaseUrlSSL = "https://api.flickr.com/services/rest/"
         static let BOUNDING_BOX_HALF_WIDTH = 1.0
@@ -114,14 +114,13 @@ class FlickrClient: NSObject {
         return error
     }
     
-    func fetchImageListFromFlickr(pin: Pin, context: NSManagedObjectContext, completionHandler: (result: AnyObject!, error: NSError?) ->  Void) {
+    func fetchImageListFromFlickr(latitude: NSNumber, longitude: NSNumber, completionHandler: (result: AnyObject!, error: NSError?) ->  Void) {
         let methodArguments = [
-            "bbox": FlickrClient.sharedInstance.createBoundingBoxString(pin.latitude, longitude: pin.longitude),
+            "bbox": FlickrClient.sharedInstance.createBoundingBoxString(latitude, longitude: longitude),
             "safe_search": "1",
             "extras": "url_m",
             "format": "json",
-            "nojsoncallback": "1",
-            "per_page": "100"
+            "nojsoncallback": "1"
         ]
         FlickrClient.sharedInstance.taskForResource("flickr.photos.search", parameters: methodArguments) { JSONResult, error in
             if let error = error {
@@ -130,62 +129,53 @@ class FlickrClient: NSObject {
                 let totalPages = (JSONResult.objectForKey("photos")!["pages"] as? Int)!
                 let pageLimit = min(totalPages, 40)
                 let randomPage = Int(arc4random_uniform(UInt32(pageLimit))) + 1
-                FlickrClient.sharedInstance.fetchImageListFromFlickrWithPage(pin, context: context, pageNumber: randomPage) { photos, error in
+                FlickrClient.sharedInstance.fetchImageListFromFlickrWithPage(latitude, longitude: longitude, pageNumber: randomPage) { JSONResult, error in
                     if let error = error {
                         completionHandler(result: nil, error: error)
                     } else {
-                        completionHandler(result: photos, error: nil)
+                        completionHandler(result: JSONResult, error: nil)
                     }
                 }
             }
         }
     }
     
-    func fetchImageListFromFlickrWithPage(pin: Pin, context: NSManagedObjectContext, pageNumber: Int, completionHandler: (result: AnyObject!, error: NSError?) ->  Void) {
+    func fetchImageListFromFlickrWithPage(latitude: NSNumber, longitude: NSNumber, pageNumber: Int, completionHandler: (result: AnyObject!, error: NSError?) ->  Void) {
         let methodArguments = [
-            "bbox": FlickrClient.sharedInstance.createBoundingBoxString(pin.latitude, longitude: pin.longitude),
+            "bbox": FlickrClient.sharedInstance.createBoundingBoxString(latitude, longitude: longitude),
             "safe_search": "1",
             "extras": "url_m",
             "format": "json",
             "nojsoncallback": "1",
-            "page": String(pageNumber)
+            "page": String(pageNumber),
+            "per_page": "20"
         ]
         FlickrClient.sharedInstance.taskForResource("flickr.photos.search", parameters: methodArguments) { JSONResult, error in
-            var photos: [Photo]?
             if let error = error {
                 completionHandler(result: nil, error: error)
             } else {
-                if let results = JSONResult.objectForKey("photos")!["photo"] as? [[String : AnyObject]] {
-                    photos = Photo.photosFromResults(results, pin: pin, context: context)
-                }
-                completionHandler(result: photos, error: nil)
+                completionHandler(result: JSONResult, error: nil)
             }
         }
     }
     
-    func downloadImagesFromFlickr(photo: Photo, addInBackground: Bool, completionHandler: (image: UIImage, error: NSError?) ->  Void) {
-        FlickrClient.sharedInstance.taskForImage(photo.imagePath!) { data, error in
+    func downloadImagesFromFlickr(imagePath: String, completionHandler: (data: NSData, error: NSError?) ->  Void) {
+        FlickrClient.sharedInstance.taskForImage(imagePath) { data, error in
             if let error = error {
                 print("Image download error: \(error.localizedDescription)")
-            }
-            
-            if let data = data {
-                if addInBackground {
-                    photo.image = UIImage(data: data)
-                }
-                NSNotificationCenter.defaultCenter().postNotificationName(Constants.LoadedNotification, object: self)
-                completionHandler(image: UIImage(data: data)!, error: nil)
+            } else {
+               completionHandler(data: data!, error: nil)
             }
         }
     }
     
     func deleteCollection(photos: [Photo], completionHandler: (success: Bool, error: NSError?) ->  Void) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+        dispatch_async(dispatch_get_main_queue()) {
             for photo in photos {
                 photo.delete()
             }
             completionHandler(success: true, error: nil)
-        });
+        }
     }
     
     // Parsing the JSON

@@ -78,16 +78,12 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     }
     
     func loadedPhoto(photo: Photo) {
-        dispatch_async(dispatch_get_main_queue()) {
-            self.collectionView.reloadData()
-        }
+        self.collectionView.reloadData()
     }
     
     func loadedAllPhotos(sender: AnyObject) {
-        dispatch_async(dispatch_get_main_queue()) {
-            self.newCollectionButton.enabled = true
-            self.activityIndicator.stopAnimating()
-        }
+        self.newCollectionButton.enabled = true
+        self.activityIndicator.stopAnimating()
     }
     
     @IBAction func grabNewCollection(sender: AnyObject) {
@@ -99,12 +95,22 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         let photos = (pin?.photos)! as [Photo]
         FlickrClient.sharedInstance.deleteCollection(photos) { success, error in
             if success {
-                FlickrClient.sharedInstance.fetchImageListFromFlickr(self.pin!, context: self.sharedContext) { photos, error in
-                    self.totalPhotoCount = (photos as! [Photo]).count
-                    self.noImagesLabel.hidden = true
-                    for photo in (photos as? [Photo])! {
-                        FlickrClient.sharedInstance.downloadImagesFromFlickr(photo, addInBackground: false) { image, error in
-                            photo.image = image
+                FlickrClient.sharedInstance.fetchImageListFromFlickr(self.pin!.coordinate.latitude, longitude: self.pin!.coordinate.longitude) { JSONResult, error in
+                    dispatch_async(dispatch_get_main_queue()) {
+                        var photos: [Photo]?
+                        if let results = JSONResult.objectForKey("photos")!["photo"] as? [[String : AnyObject]] {
+                            photos = Photo.photosFromResults(results, pin: self.pin!, context: self.sharedContext)
+                        }
+                        self.totalPhotoCount = photos!.count
+                        self.noImagesLabel.hidden = true
+                        for photo in photos! {
+                            FlickrClient.sharedInstance.downloadImagesFromFlickr(photo.imagePath!) { data, error in
+                                dispatch_async(dispatch_get_main_queue()) {
+                                    photo.image = UIImage(data: data)
+                                    NSNotificationCenter.defaultCenter().postNotificationName(FlickrClient.Constants.LoadedNotification, object: self)
+                                    CoreDataStackManager.sharedInstance().saveContext()
+                                }
+                            }
                         }
                     }
                 }
@@ -141,7 +147,7 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         collectionView.performBatchUpdates({() -> Void in
             
             for indexPath in self.insertedIndexPaths {
-                if (self.pin?.photos.count >= 1) {
+                if (self.pin?.photos.count >= 1 && self.pin?.photos.count == self.collectionView.numberOfItemsInSection(0)) {
                     self.collectionView.reloadData()
                 } else {
                     self.collectionView.insertItemsAtIndexPaths([indexPath])
