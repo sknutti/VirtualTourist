@@ -97,13 +97,13 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         noImagesLabel.hidden = false
         
         let photos = (pin?.photos)! as [Photo]
-        FlickrClient.sharedInstance().deleteCollection(photos) { success, error in
+        FlickrClient.sharedInstance.deleteCollection(photos) { success, error in
             if success {
-                FlickrClient.sharedInstance().fetchImageListFromFlickr(self.pin!, context: self.sharedContext) { photos, error in
+                FlickrClient.sharedInstance.fetchImageListFromFlickr(self.pin!, context: self.sharedContext) { photos, error in
                     self.totalPhotoCount = (photos as! [Photo]).count
                     self.noImagesLabel.hidden = true
                     for photo in (photos as? [Photo])! {
-                        FlickrClient.sharedInstance().downloadImagesFromFlickr(photo, addInBackground: false) { image, error in
+                        FlickrClient.sharedInstance.downloadImagesFromFlickr(photo, addInBackground: false) { image, error in
                             photo.image = image
                         }
                     }

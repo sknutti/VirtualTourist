@@ -125,15 +125,14 @@ class MapViewController: UIViewController {
                 let pin = Pin(dictionary: dictionary, context: self.sharedContext)
                 CoreDataStackManager.sharedInstance().saveContext()
                 
-                FlickrClient.sharedInstance().fetchImageListFromFlickr(pin, context: self.sharedContext) { photos, error in
+                FlickrClient.sharedInstance.fetchImageListFromFlickr(pin, context: self.sharedContext) { photos, error in
                     for photo in (photos as? [Photo])! {
-                        FlickrClient.sharedInstance().downloadImagesFromFlickr(photo, addInBackground: true) { success, error in }
+                        FlickrClient.sharedInstance.downloadImagesFromFlickr(photo, addInBackground: true) { success, error in }
                     }
                 }
             })
         case .Changed:
-            mapView.removeAnnotation(temporaryPin!)
-            fallthrough
+            temporaryPin?.coordinate = annotation.coordinate
         default:
             temporaryPin = annotation
             mapView.addAnnotation(annotation)
